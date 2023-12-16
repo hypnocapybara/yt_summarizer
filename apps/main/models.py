@@ -1,0 +1,30 @@
+from django.db import models
+
+from .mixins import CreatedUpdatedMixin
+
+
+class YoutubeChannel(models.Model):
+    url = models.URLField()
+    enabled = models.BooleanField(default=True)
+    title = models.CharField(max_length=200, blank=True, null=True)
+    last_parsed_at = models.DateTimeField(blank=True, null=True)
+    voice_file = models.FileField(upload_to='channels/', blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Youtube Channel'
+        verbose_name_plural = 'Youtube Channels'
+
+
+class YoutubeVideo(CreatedUpdatedMixin):
+    channel = models.ForeignKey(YoutubeChannel, on_delete=models.CASCADE)
+    url = models.URLField()
+    youtube_id = models.CharField(max_length=100, blank=True, null=True)
+    title = models.CharField(max_length=200, blank=True, null=True)
+    audio_file = models.FileField(upload_to='videos/audio/', blank=True, null=True)
+    transcription = models.TextField(blank=True, null=True)
+    summary = models.TextField(blank=True, null=True)
+    voiced_summary = models.FileField(upload_to='videos/voiced/', blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Youtube Video'
+        verbose_name_plural = 'Youtube Videos'
