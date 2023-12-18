@@ -1,6 +1,5 @@
 import io
 import whisper
-from django.utils import timezone
 
 from pytube import Channel, YouTube
 from pytube.streams import Stream

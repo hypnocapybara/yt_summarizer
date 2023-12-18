@@ -12,7 +12,7 @@ django-rq = "^2.9.0"
 pytube = "^15.0.0"
 google-api-python-client = "^2.111.0"
 openai-whisper = "^20231117"
-psycopg2 = "^2.9.9"
+psycopg = "^3.1.15"
 
 
 [build-system]
