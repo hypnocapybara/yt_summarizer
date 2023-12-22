@@ -13,6 +13,10 @@ pytube = "^15.0.0"
 google-api-python-client = "^2.111.0"
 openai-whisper = "^20231117"
 psycopg = "^3.1.15"
+transformers = "^4.36.2"
+bitsandbytes = "^0.41.3.post2"
+accelerate = "^0.25.0"
+scipy = "^1.11.4"
 
 
 [build-system]
