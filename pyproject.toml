@@ -6,7 +6,7 @@ authors = ["Alex <aleks@fellow.co>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11,<3.12"
 django = "^5.0"
 django-rq = "^2.9.0"
 pytube = "^15.0.0"
@@ -21,6 +21,7 @@ openai = "^1.6.0"
 python-dotenv = "^1.0.0"
 nltk = "^3.8.1"
 tiktoken = "^0.5.2"
+tts = "^0.22.0"
 
 
 [build-system]
