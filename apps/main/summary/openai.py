@@ -41,10 +41,6 @@ TOKENIZER_LANGUAGES = {
 }
 
 
-def _words_count(sentence):
-    return len(sentence.split())
-
-
 def summarize_video_openai(video: YoutubeVideo):
     language = video.transcription_language
     is_bad_language = language not in INITIAL_PROMPTS or language not in USER_INPUTS
@@ -79,6 +75,8 @@ def summarize_video_openai(video: YoutubeVideo):
     chunks_buffer.append(' '.join(sentences_buffer))
 
     summaries = []
+
+    print(f'Gonna summarize {len(chunks_buffer)} chunks')
 
     for chunk in chunks_buffer:
         completion = client.chat.completions.create(

@@ -4,10 +4,11 @@ import os
 import whisper
 import torch
 import tempfile
+from django.utils import timezone
 from TTS.api import TTS
 
-from pytube import Channel, YouTube
-from pytube.streams import Stream
+from pytubefix import Channel, YouTube
+from pytubefix.streams import Stream
 
 from .summary.openai import summarize_video_openai
 # from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, pipeline
@@ -17,11 +18,26 @@ from apps.main.models import YoutubeChannel, YoutubeVideo
 
 def parse_channel(channel: YoutubeChannel):
     yt_channel = Channel(channel.url)
-
-    channel.title = yt_channel.title
+    channel.title = yt_channel.channel_name
     channel.save()
 
-    videos = []
+    try:
+        last_video = yt_channel.videos[0]
+    except IndexError:
+        return
+
+    if YoutubeVideo.objects.filter(channel=channel, youtube_id=last_video.video_id).exists():
+        return
+
+    YoutubeVideo.objects.create(
+        channel=channel,
+        url=last_video.watch_url,
+        youtube_id=last_video.video_id,
+        title=last_video.title,
+    )
+
+    channel.last_parsed_at = timezone.now()
+    channel.save()
 
 
 def parse_video(video: YoutubeVideo):
