@@ -9,6 +9,7 @@ from TTS.api import TTS
 from pytube import Channel, YouTube
 from pytube.streams import Stream
 
+from .summary.openai import summarize_video_openai
 # from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, pipeline
 
 from apps.main.models import YoutubeChannel, YoutubeVideo
@@ -51,6 +52,34 @@ def transcribe_video(video: YoutubeVideo):
     video.save()
 
 
+def summarize_video(video: YoutubeVideo):
+    return summarize_video_openai(video)
+
+    # bnb_config = BitsAndBytesConfig(
+    #     load_in_4bit=True,
+    #     bnb_4bit_quant_type='nf4',
+    #     bnb_4bit_use_double_quant=True,
+    # )
+    #
+    # model = AutoModelForCausalLM.from_pretrained(
+    #     'mistralai/Mistral-7B-Instruct-v0.2',
+    #     quantization_config=bnb_config
+    # )
+    #
+    # tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2")
+    # messages = [
+    #     {"role": "user", "content": TEMPLATE.format(text=text)},
+    # ]
+    #
+    # encodeds = tokenizer.apply_chat_template(messages, return_tensors="pt")
+    #
+    # model_inputs = encodeds.to('cpu')
+    #
+    # generated_ids = model.generate(model_inputs, max_new_tokens=1000, do_sample=True)
+    # decoded = tokenizer.batch_decode(generated_ids)
+    # print(decoded[0])
+
+
 def voice_summary(video: YoutubeVideo):
     if not video.summary:
         return
@@ -70,32 +99,3 @@ def voice_summary(video: YoutubeVideo):
             video.save()
     finally:
         os.remove(temp_filename)
-
-
-# def summarize_video(video: YoutubeVideo):
-#     if not video.transcription or not video.transcription_language:
-#         return
-#
-#     bnb_config = BitsAndBytesConfig(
-#         load_in_4bit=True,
-#         bnb_4bit_quant_type='nf4',
-#         bnb_4bit_use_double_quant=True,
-#     )
-#
-#     model = AutoModelForCausalLM.from_pretrained(
-#         'mistralai/Mistral-7B-Instruct-v0.2',
-#         quantization_config=bnb_config
-#     )
-#
-#     tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2")
-#     messages = [
-#         {"role": "user", "content": TEMPLATE.format(text=text)},
-#     ]
-#
-#     encodeds = tokenizer.apply_chat_template(messages, return_tensors="pt")
-#
-#     model_inputs = encodeds.to('cpu')
-#
-#     generated_ids = model.generate(model_inputs, max_new_tokens=1000, do_sample=True)
-#     decoded = tokenizer.batch_decode(generated_ids)
-#     print(decoded[0])
