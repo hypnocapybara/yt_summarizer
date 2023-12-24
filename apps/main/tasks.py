@@ -1,5 +1,10 @@
 import io
+import os
+
 import whisper
+import torch
+import tempfile
+from TTS.api import TTS
 
 from pytube import Channel, YouTube
 from pytube.streams import Stream
@@ -44,6 +49,27 @@ def transcribe_video(video: YoutubeVideo):
     video.transcription_language = result['language']
     video.transcription = result['text']
     video.save()
+
+
+def voice_summary(video: YoutubeVideo):
+    if not video.summary:
+        return
+
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    tts = TTS('tts_models/multilingual/multi-dataset/xtts_v2').to(device)
+    _fd, temp_filename = tempfile.mkstemp()
+    try:
+        tts.tts_to_file(
+            text=video.summary,
+            speaker_wav=video.channel.voice_file.path,
+            language=video.transcription_language,
+            file_path=temp_filename,
+        )
+        with open(temp_filename, 'rb') as file:
+            video.voiced_summary.save(f'{video.youtube_id}.wav', file)
+            video.save()
+    finally:
+        os.remove(temp_filename)
 
 
 # def summarize_video(video: YoutubeVideo):
