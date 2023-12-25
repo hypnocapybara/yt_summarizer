@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django_rq',
 
     'apps.main',
+    'apps.telegram',
 ]
 
 MIDDLEWARE = [
@@ -150,3 +151,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 load_dotenv()
 
 OPEN_AI_KEY = os.environ.get('OPEN_AI_KEY', '')
+TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '')
