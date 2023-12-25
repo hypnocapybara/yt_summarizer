@@ -15,4 +15,4 @@ class MainConfig(AppConfig):
         for job in scheduler.get_jobs():
             job.delete()
 
-        scheduler.schedule(timezone.now(), 'apps.main.tasks.parse_all_channels', interval=5)
+        scheduler.schedule(timezone.now(), 'apps.main.tasks.parse_all_channels', interval=10 * 60)
