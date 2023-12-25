@@ -10,5 +10,8 @@
 ### RQ workers for not-high-load tasks
 `python manage.py rqworker default`
 
+### RQ scheduler
+`python manage.py rqscheduler`
+
 ### Telegram bot
 `python manage.py run_bot`

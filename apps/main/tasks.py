@@ -5,6 +5,7 @@ import whisper
 import torch
 import tempfile
 from django.utils import timezone
+from django_rq import job
 from TTS.api import TTS
 
 from pytubefix import Channel, YouTube
@@ -16,7 +17,15 @@ from .summary.openai import summarize_video_openai
 from apps.main.models import YoutubeChannel, YoutubeVideo
 
 
+@job('default')
+def parse_all_channels():
+    print('running parse all channels')
+
+
+@job('default')
 def parse_channel(channel: YoutubeChannel):
+    print(f'running parse channel {str(channel)}')
+
     yt_channel = Channel(channel.url)
     channel.title = yt_channel.channel_name
     channel.save()
@@ -40,7 +49,10 @@ def parse_channel(channel: YoutubeChannel):
     channel.save()
 
 
+@job('default')
 def parse_video(video: YoutubeVideo):
+    print(f'running parse video {str(video)}')
+
     yt_video = YouTube(video.url)
 
     video.youtube_id = yt_video.video_id
@@ -59,7 +71,10 @@ def parse_video(video: YoutubeVideo):
     video.save()
 
 
+@job('ai')
 def transcribe_video(video: YoutubeVideo):
+    print(f'running transcribe video {str(video)}')
+
     model = whisper.load_model('medium')
     result = model.transcribe(video.audio_file.path)
 
@@ -68,7 +83,10 @@ def transcribe_video(video: YoutubeVideo):
     video.save()
 
 
+@job('ai')
 def summarize_video(video: YoutubeVideo):
+    print(f'running summarize video {str(video)}')
+
     return summarize_video_openai(video)
 
     # bnb_config = BitsAndBytesConfig(
@@ -96,7 +114,10 @@ def summarize_video(video: YoutubeVideo):
     # print(decoded[0])
 
 
+@job('ai')
 def voice_summary(video: YoutubeVideo):
+    print(f'running voice summary {str(video)}')
+
     if not video.summary:
         return
 
