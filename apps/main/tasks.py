@@ -41,7 +41,7 @@ def parse_channel(channel: YoutubeChannel):
     if YoutubeVideo.objects.filter(channel=channel, youtube_id=last_video.video_id).exists():
         return
 
-    YoutubeVideo.objects.create(
+    new_video = YoutubeVideo.objects.create(
         channel=channel,
         url=last_video.watch_url,
         youtube_id=last_video.video_id,
@@ -50,6 +50,8 @@ def parse_channel(channel: YoutubeChannel):
 
     channel.last_parsed_at = timezone.now()
     channel.save()
+
+    parse_video.delay(new_video)
 
 
 @job('default')
@@ -73,6 +75,8 @@ def parse_video(video: YoutubeVideo):
     video.audio_file.save(f'{video.youtube_id}.{stream.subtype}', buffer)
     video.save()
 
+    transcribe_video.delay(video)
+
 
 @job('ai')
 def transcribe_video(video: YoutubeVideo):
@@ -90,7 +94,8 @@ def transcribe_video(video: YoutubeVideo):
 def summarize_video(video: YoutubeVideo):
     print(f'running summarize video {str(video)}')
 
-    return summarize_video_openai(video)
+    summarize_video_openai(video)
+    voice_summary.delay(video)
 
     # bnb_config = BitsAndBytesConfig(
     #     load_in_4bit=True,
