@@ -21,6 +21,9 @@ from apps.main.models import YoutubeChannel, YoutubeVideo
 def parse_all_channels():
     print('running parse all channels')
 
+    for channel in YoutubeChannel.objects.filter(enabled=True):
+        parse_channel.delay(channel)
+
 
 @job('default')
 def parse_channel(channel: YoutubeChannel):
