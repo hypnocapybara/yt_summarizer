@@ -89,6 +89,8 @@ def transcribe_video(video: YoutubeVideo):
     video.transcription = result['text']
     video.save()
 
+    summarize_video.delay(video)
+
 
 @job('ai', timeout=10 * 60)
 def summarize_video(video: YoutubeVideo):
