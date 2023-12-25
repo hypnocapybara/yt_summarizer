@@ -5,7 +5,7 @@
 `python manage.py runserver`
 
 ### RQ workers for AI tasks
-`python manage.py rqworker ai --max-jobs 1`
+`python manage.py rqworker ai`
 
 ### RQ workers for not-high-load tasks
 `python manage.py rqworker default`

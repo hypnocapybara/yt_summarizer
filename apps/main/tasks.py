@@ -78,7 +78,7 @@ def parse_video(video: YoutubeVideo):
     transcribe_video.delay(video)
 
 
-@job('ai')
+@job('ai', timeout=60 * 60)
 def transcribe_video(video: YoutubeVideo):
     print(f'running transcribe video {str(video)}')
 
@@ -90,7 +90,7 @@ def transcribe_video(video: YoutubeVideo):
     video.save()
 
 
-@job('ai')
+@job('ai', timeout=10 * 60)
 def summarize_video(video: YoutubeVideo):
     print(f'running summarize video {str(video)}')
 
@@ -122,7 +122,7 @@ def summarize_video(video: YoutubeVideo):
     # print(decoded[0])
 
 
-@job('ai')
+@job('ai', timeout=20 * 60)
 def voice_summary(video: YoutubeVideo):
     print(f'running voice summary {str(video)}')
 
