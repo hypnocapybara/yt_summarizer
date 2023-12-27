@@ -2,10 +2,11 @@ from django.db import models
 
 from aiogram.types import User
 
+from apps.main.mixins import CreatedUpdatedMixin
 
-class TelegramUser(models.Model):
+
+class TelegramUser(CreatedUpdatedMixin):
     telegram_id = models.BigIntegerField(primary_key=True)
-    created_at = models.DateTimeField(auto_now_add=True)
     first_name = models.CharField(max_length=100, blank=True, null=True)
     last_name = models.CharField(max_length=100, blank=True, null=True)
     username = models.CharField(max_length=100, blank=True, null=True)
@@ -29,7 +30,7 @@ class TelegramUser(models.Model):
         return ' '.join(parts)
 
     @staticmethod
-    async def from_telegram_user(tg_user: User):
+    async def get_or_create_from_telegram_user(tg_user: User):
         try:
             user = await TelegramUser.objects.aget(pk=tg_user.id)
         except TelegramUser.DoesNotExist:
@@ -41,3 +42,18 @@ class TelegramUser(models.Model):
             )
 
         return user
+
+
+class TelegramVideo(CreatedUpdatedMixin):
+    video = models.ForeignKey('main.YoutubeVideo', on_delete=models.CASCADE)
+    telegram_file_id = models.CharField(max_length=200)
+    sent_to = models.ManyToManyField(TelegramUser, through='VideoNotification', related_name='videos')
+
+    def __str__(self):
+        return str(self.video)
+
+
+class VideoNotification(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(TelegramUser, on_delete=models.CASCADE)
+    video = models.ForeignKey(TelegramVideo, on_delete=models.CASCADE)

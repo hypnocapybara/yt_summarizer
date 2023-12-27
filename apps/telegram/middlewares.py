@@ -13,5 +13,5 @@ class UserMiddleware(BaseMiddleware):
         event: Message,
         data: Dict[str, Any]
     ) -> Any:
-        data['user'] = await TelegramUser.from_telegram_user(event.from_user)
+        data['user'] = await TelegramUser.get_or_create_from_telegram_user(event.from_user)
         return await handler(event, data)
