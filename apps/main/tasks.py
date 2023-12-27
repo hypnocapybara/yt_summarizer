@@ -126,6 +126,8 @@ def summarize_video(video: YoutubeVideo):
 
 @job('ai', timeout=20 * 60)
 def voice_summary(video: YoutubeVideo):
+    from apps.telegram.tasks import send_video_notifications
+
     print(f'running voice summary {str(video)}')
 
     if not video.summary:
@@ -146,3 +148,5 @@ def voice_summary(video: YoutubeVideo):
             video.save()
     finally:
         os.remove(temp_filename)
+
+    send_video_notifications.delay(video)

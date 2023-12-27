@@ -8,7 +8,7 @@ from apps.telegram.middlewares import UserMiddleware
 
 
 async def command_start_handler(message: Message) -> None:
-    await message.answer(f"Hello, {hbold(message.from_user.full_name)}!")
+    await message.answer(f"Hello, {hbold(message.from_user.full_name)}, you have registered!")
 
 
 async def echo_handler(message: types.Message) -> None:
