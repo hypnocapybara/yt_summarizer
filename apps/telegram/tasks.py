@@ -45,7 +45,9 @@ def send_video_to_user(video: 'YoutubeVideo', user: TelegramUser):
 @async_to_sync(force_new_loop=True)
 async def _async_send_video_to_user(bot: Bot, telegram_video: TelegramVideo, video: 'YoutubeVideo', user: TelegramUser):
     formatted = f'{hbold(video.title)}\n{video.url}\n\n{video.summary}'
-    await bot.send_message(user.telegram_id, formatted)
+
+    for i in range(0, len(formatted), 4000):
+        await bot.send_message(user.telegram_id, formatted[i:i+4000])
 
     if telegram_video:
         result = await bot.send_audio(

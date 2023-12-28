@@ -55,7 +55,7 @@ def summarize_video_openai(video: YoutubeVideo):
     chunks_buffer = []
     sentences_buffer = []
     current_tokens_count = 0
-    max_tokens_count_in_chunk = 12000
+    max_tokens_count_in_chunk = 128000
 
     for sentence in sentences:
         tokens_count = len(encoder.encode(sentence))
@@ -80,7 +80,7 @@ def summarize_video_openai(video: YoutubeVideo):
 
     for chunk in chunks_buffer:
         completion = client.chat.completions.create(
-            model="gpt-3.5-turbo-1106",
+            model="gpt-4-1106-preview",
             messages=[
                 {"role": "system", "content": INITIAL_PROMPTS[language]},
                 {"role": "user", "content": USER_INPUTS[language].format(text=chunk)}
