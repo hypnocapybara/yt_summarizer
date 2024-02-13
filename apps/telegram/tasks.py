@@ -7,7 +7,7 @@ from django.conf import settings
 from django_rq import job
 from typing import TYPE_CHECKING
 
-from apps.telegram.models import TelegramUser, TelegramVideo, VideoNotification
+from apps.telegram.models import TelegramUser, TelegramVideo, VideoNotification, SingleVideoToSend
 
 if TYPE_CHECKING:
     from apps.main.models import YoutubeVideo
@@ -17,6 +17,7 @@ if TYPE_CHECKING:
 def send_video_notifications(video: 'YoutubeVideo'):
     subscribers = TelegramUser.objects.filter(subscriptions=video.channel)
     if subscribers.count() == 0:
+        _send_video_single_requests.delay(video)
         return
 
     # If it is a first send, we have no TelegramVideo.
@@ -27,6 +28,21 @@ def send_video_notifications(video: 'YoutubeVideo'):
 
     for subscriber in subscribers[1:]:
         send_video_to_user.delay(video, subscriber)
+
+    _send_video_single_requests.delay(video)
+
+
+@job('default')
+def _send_video_single_requests(video: 'YoutubeVideo'):
+    video_requests = SingleVideoToSend.objects.filter(video=video, is_sent=False)
+    if video_requests.count() == 0:
+        return
+
+    first_request = video_requests[0]
+    send_video_to_user(video, first_request.send_to)
+
+    for video_request in video_requests[1:]:
+        send_video_to_user.delay(video, video_request.send_to)
 
 
 @job('default')
@@ -43,7 +59,9 @@ def send_video_to_user(video: 'YoutubeVideo', user: TelegramUser):
 
 
 @async_to_sync(force_new_loop=True)
-async def _async_send_video_to_user(bot: Bot, telegram_video: TelegramVideo, video: 'YoutubeVideo', user: TelegramUser):
+async def _async_send_video_to_user(
+        bot: Bot, telegram_video: TelegramVideo | None, video: 'YoutubeVideo', user: TelegramUser
+):
     formatted = f'{hbold(video.title)}\n{video.url}\n\n{video.summary}'
 
     for i in range(0, len(formatted), 4000):
@@ -62,6 +80,7 @@ async def _async_send_video_to_user(bot: Bot, telegram_video: TelegramVideo, vid
             caption=video.title
         )
 
+    # Since we create a new bot instance and session, we should close it, to avoid asyncio warnings
     await bot.session.close()
 
     return result

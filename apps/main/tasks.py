@@ -126,7 +126,7 @@ def voice_summary(video: YoutubeVideo):
     try:
         tts.tts_to_file(
             text=video.summary,
-            speaker_wav=video.channel.voice_file.path,
+            speaker_wav=video.channel.voice_file.path if video.channel and video.channel.voice_file else None,
             language=video.transcription_language,
             file_path=temp_filename,
         )

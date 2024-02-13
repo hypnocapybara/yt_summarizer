@@ -57,3 +57,9 @@ class VideoNotification(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(TelegramUser, on_delete=models.CASCADE)
     video = models.ForeignKey(TelegramVideo, on_delete=models.CASCADE)
+
+
+class SingleVideoToSend(CreatedUpdatedMixin):
+    video = models.ForeignKey('main.YoutubeVideo', on_delete=models.CASCADE)
+    send_to = models.ForeignKey(TelegramUser, on_delete=models.CASCADE)
+    is_sent = models.BooleanField(default=False)

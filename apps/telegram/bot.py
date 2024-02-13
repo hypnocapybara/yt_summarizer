@@ -11,18 +11,18 @@ async def command_start_handler(message: Message) -> None:
     await message.answer(f"Hello, {hbold(message.from_user.full_name)}, you have registered!")
 
 
-async def echo_handler(message: types.Message) -> None:
-    try:
-        await message.send_copy(chat_id=message.chat.id)
-    except TypeError:
-        await message.answer("Nice try!")
+async def message_handler(message: types.Message) -> None:
+    if message.link_preview_options:
+        url = message.link_preview_options.url
+
+    await message.answer("Send me the YouTube video URL!")
 
 
 async def run_bot(token: str) -> None:
     dp = Dispatcher()
 
     dp.message(CommandStart())(command_start_handler)
-    dp.message()(echo_handler)
+    dp.message()(message_handler)
 
     bot = Bot(token, parse_mode=ParseMode.HTML)
     dp.message.middleware(UserMiddleware())
