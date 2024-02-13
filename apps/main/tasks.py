@@ -1,7 +1,6 @@
 import io
 import os
 
-import whisper
 import torch
 import tempfile
 from django.utils import timezone
@@ -9,10 +8,9 @@ from django_rq import job
 from TTS.api import TTS
 
 from pytubefix import Channel, YouTube
-from pytubefix.streams import Stream
 
+from .transcription.openai import transcribe_video_openai
 from .summary.openai import summarize_video_openai
-# from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, pipeline
 
 from apps.main.models import YoutubeChannel, YoutubeVideo
 
@@ -93,13 +91,11 @@ def parse_video(video: YoutubeVideo):
 def transcribe_video(video: YoutubeVideo):
     print(f'running transcribe video {str(video)}')
 
-    model = whisper.load_model('medium')
-    result = model.transcribe(video.audio_file.path)
+    if video.transcription:
+        print("already have transcription, skipping...")
+        return
 
-    video.transcription_language = result['language']
-    video.transcription = result['text']
-    video.save()
-
+    transcribe_video_openai(video)
     summarize_video.delay(video)
 
 
@@ -107,32 +103,12 @@ def transcribe_video(video: YoutubeVideo):
 def summarize_video(video: YoutubeVideo):
     print(f'running summarize video {str(video)}')
 
+    if video.summary:
+        print("already have summary, skipping...")
+        return
+
     summarize_video_openai(video)
     voice_summary.delay(video)
-
-    # bnb_config = BitsAndBytesConfig(
-    #     load_in_4bit=True,
-    #     bnb_4bit_quant_type='nf4',
-    #     bnb_4bit_use_double_quant=True,
-    # )
-    #
-    # model = AutoModelForCausalLM.from_pretrained(
-    #     'mistralai/Mistral-7B-Instruct-v0.2',
-    #     quantization_config=bnb_config
-    # )
-    #
-    # tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2")
-    # messages = [
-    #     {"role": "user", "content": TEMPLATE.format(text=text)},
-    # ]
-    #
-    # encodeds = tokenizer.apply_chat_template(messages, return_tensors="pt")
-    #
-    # model_inputs = encodeds.to('cpu')
-    #
-    # generated_ids = model.generate(model_inputs, max_new_tokens=1000, do_sample=True)
-    # decoded = tokenizer.batch_decode(generated_ids)
-    # print(decoded[0])
 
 
 @job('ai', timeout=20 * 60)
