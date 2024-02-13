@@ -3078,6 +3078,17 @@ files = [
 typing-extensions = ">=4.6.0,<4.7.0 || >4.7.0"
 
 [[package]]
+name = "pydub"
+version = "0.25.1"
+description = "Manipulate audio with an simple and easy high level interface"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pydub-0.25.1-py2.py3-none-any.whl", hash = "sha256:65617e33033874b59d87db603aa1ed450633288aefead953b30bded59cb599a6"},
+    {file = "pydub-0.25.1.tar.gz", hash = "sha256:980a33ce9949cab2a569606b65674d748ecbca4f0796887fd6f46173a7b0d30f"},
+]
+
+[[package]]
 name = "pynndescent"
 version = "0.5.11"
 description = "Nearest Neighbor Descent"
@@ -4925,4 +4936,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.12"
-content-hash = "ffcced20c25ae78f60bf045e625be23fcdd3eeefb4b743039737aee7218854ed"
+content-hash = "1c7b3361edb36e5108dd00d24c1891bb0c566e663313cda9c0b258a5bb0273f1"
