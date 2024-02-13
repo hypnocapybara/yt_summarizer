@@ -1,7 +1,9 @@
+import django_rq
 from django.db import models
 
 from aiogram.types import User
 
+from apps.main.models import YoutubeVideo
 from apps.main.mixins import CreatedUpdatedMixin
 
 
@@ -63,3 +65,13 @@ class SingleVideoToSend(CreatedUpdatedMixin):
     video = models.ForeignKey('main.YoutubeVideo', on_delete=models.CASCADE)
     send_to = models.ForeignKey(TelegramUser, on_delete=models.CASCADE)
     is_sent = models.BooleanField(default=False)
+
+    @staticmethod
+    async def schedule_to_send(url: str, user: TelegramUser) -> YoutubeVideo | None:
+        if 'youtube.com' not in url or 'youtu.be' not in url:
+            return
+
+        video = await YoutubeVideo.objects.acreate(url=url)
+        SingleVideoToSend.objects.acreate(video=video, user=user)
+
+        return video

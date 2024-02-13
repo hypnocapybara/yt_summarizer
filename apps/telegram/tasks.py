@@ -40,9 +40,13 @@ def _send_video_single_requests(video: 'YoutubeVideo'):
 
     first_request = video_requests[0]
     send_video_to_user(video, first_request.send_to)
+    first_request.is_sent = True
+    first_request.save()
 
     for video_request in video_requests[1:]:
         send_video_to_user.delay(video, video_request.send_to)
+        video_request.is_sent = True
+        video_request.save()
 
 
 @job('default')
