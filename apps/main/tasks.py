@@ -16,6 +16,8 @@ from .summary.openai import summarize_video_openai
 
 from apps.main.models import YoutubeChannel, YoutubeVideo
 
+BITRATE_THRESHOLD = 50_000
+
 
 @job('default')
 def parse_all_channels():
@@ -64,12 +66,21 @@ def parse_video(video: YoutubeVideo):
     video.title = yt_video.title
     video.save()
 
-    audio_streams = [stream for stream in yt_video.streams if stream.type == 'audio']
-    audio_streams = sorted(audio_streams, key=lambda s: s.bitrate, reverse=True)
+    audio_streams = [stream for stream in yt_video.streams if stream.mime_type == "audio/mp4"]
+
     if not audio_streams:
         return
 
-    stream: Stream = audio_streams[0]
+    high_bitrate_streams = sorted(
+        [stream for stream in audio_streams if stream.bitrate > BITRATE_THRESHOLD],
+        key=lambda s: s.bitrate
+    )
+
+    if high_bitrate_streams:
+        stream = high_bitrate_streams[0]
+    else:
+        stream = audio_streams[0]
+
     buffer = io.BytesIO()
     stream.stream_to_buffer(buffer)
     video.audio_file.save(f'{video.youtube_id}.{stream.subtype}', buffer)

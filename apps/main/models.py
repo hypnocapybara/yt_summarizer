@@ -19,7 +19,7 @@ class YoutubeChannel(models.Model):
 
 
 class YoutubeVideo(CreatedUpdatedMixin):
-    channel = models.ForeignKey(YoutubeChannel, on_delete=models.CASCADE)
+    channel = models.ForeignKey(YoutubeChannel, on_delete=models.SET_NULL, blank=True, null=True)
     url = models.URLField()
     youtube_id = models.CharField(max_length=100, blank=True, null=True)
     title = models.CharField(max_length=200, blank=True, null=True)
