@@ -68,10 +68,10 @@ class SingleVideoToSend(CreatedUpdatedMixin):
 
     @staticmethod
     async def schedule_to_send(url: str, user: TelegramUser) -> YoutubeVideo | None:
-        if 'youtube.com' not in url or 'youtu.be' not in url:
+        if 'youtube.com' not in url and 'youtu.be' not in url:
             return
 
         video = await YoutubeVideo.objects.acreate(url=url)
-        SingleVideoToSend.objects.acreate(video=video, user=user)
+        await SingleVideoToSend.objects.acreate(video=video, send_to=user)
 
         return video
