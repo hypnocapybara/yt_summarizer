@@ -71,6 +71,7 @@ class SingleVideoToSend(CreatedUpdatedMixin):
         if 'youtube.com' not in url and 'youtu.be' not in url:
             return
 
+        # TODO: support for existing videos (get or create)
         video = await YoutubeVideo.objects.acreate(url=url)
         await SingleVideoToSend.objects.acreate(video=video, send_to=user)
 

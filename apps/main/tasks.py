@@ -1,11 +1,12 @@
 import io
 import os
 import random
+
 import torch
 import tempfile
 
 from django.utils import timezone
-from django_rq import job
+from django_rq import job, get_queue
 from TTS.api import TTS
 
 from pytubefix import Channel, YouTube
@@ -99,6 +100,8 @@ def parse_video(video: YoutubeVideo):
 
     transcribe_video.delay(video)
 
+    _notify_telegram_users(video, 'Video fetched! Running transcript...')
+
 
 @job('ai', timeout=60 * 60)
 def transcribe_video(video: YoutubeVideo):
@@ -110,6 +113,8 @@ def transcribe_video(video: YoutubeVideo):
 
     transcribe_video_openai(video)
     summarize_video.delay(video)
+
+    _notify_telegram_users(video, 'Transcription done! Running summarization...')
 
 
 @job('ai', timeout=10 * 60)
@@ -123,11 +128,11 @@ def summarize_video(video: YoutubeVideo):
     summarize_video_openai(video)
     voice_summary.delay(video)
 
+    _notify_telegram_users(video, 'Summarization done! Generating audio...')
+
 
 @job('ai', timeout=20 * 60)
 def voice_summary(video: YoutubeVideo):
-    from apps.telegram.tasks import send_video_notifications
-
     print(f'running voice summary {str(video)}')
 
     if not video.summary:
@@ -154,4 +159,10 @@ def voice_summary(video: YoutubeVideo):
     finally:
         os.remove(temp_filename)
 
-    send_video_notifications.delay(video)
+    queue = get_queue('default')
+    queue.enqueue('apps.telegram.tasks.send_video_notifications', video)
+
+
+def _notify_telegram_users(video: YoutubeVideo, message: str):
+    queue = get_queue('default')
+    queue.enqueue('apps.telegram.tasks.notify_video_progress', video, message)

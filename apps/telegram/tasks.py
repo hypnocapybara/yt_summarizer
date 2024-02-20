@@ -88,3 +88,22 @@ async def _async_send_video_to_user(
     await bot.session.close()
 
     return result
+
+
+@job('default')
+def notify_video_progress(video: 'YoutubeVideo', message: str):
+    video_requests = SingleVideoToSend.objects.filter(video=video, is_sent=False)
+    if video_requests.count() == 0:
+        return
+
+    bot = Bot(settings.TELEGRAM_BOT_TOKEN, parse_mode=ParseMode.HTML)
+    telegram_users = [video_request.send_to for video_request in video_requests]
+    _async_send_message_to_users(bot, telegram_users, message)
+
+
+@async_to_sync(force_new_loop=True)
+async def _async_send_message_to_users(bot: Bot, users: list[TelegramUser], message: str):
+    for user in users:
+        await bot.send_message(user.telegram_id, message)
+
+    await bot.session.close()
