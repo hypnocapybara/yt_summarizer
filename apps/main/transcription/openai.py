@@ -27,7 +27,7 @@ def transcribe_video_openai(video: YoutubeVideo):
         video.transcription = result.text
         video.transcription_segments = [
             {
-                key: s[key].strip() if type(s[key]) is str else s[key]
+                key: s[key]
                 for key in ['start', 'end', 'text']
             }
             for s in result.segments
