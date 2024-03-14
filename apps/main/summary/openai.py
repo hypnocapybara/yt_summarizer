@@ -47,10 +47,15 @@ def summarize_video_openai(video: YoutubeVideo):
     if is_bad_language or not video.transcription:
         return
 
+    video.summary = summarize_text(video.transcription, language)
+    video.save()
+
+
+def summarize_text(text: str, language: str) -> str:
     client = OpenAI(api_key=settings.OPEN_AI_KEY)
 
     encoder = get_encoding("cl100k_base")
-    sentences = tokenize.sent_tokenize(video.transcription, language=TOKENIZER_LANGUAGES[language])
+    sentences = tokenize.sent_tokenize(text, language=TOKENIZER_LANGUAGES[language])
 
     chunks_buffer = []
     sentences_buffer = []
@@ -90,5 +95,4 @@ def summarize_video_openai(video: YoutubeVideo):
         result = str(completion.choices[0].message.content)
         summaries.append(result)
 
-    video.summary = '\n'.join(summaries)
-    video.save()
+    return '\n'.join(summaries)
