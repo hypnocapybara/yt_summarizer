@@ -25,4 +25,12 @@ def transcribe_video_openai(video: YoutubeVideo):
         print("transcribed in", time() - time_start)
         video.transcription_language = LANGUAGES_MAP.get(result.language, 'unknown')
         video.transcription = result.text
+        video.transcription_segments = [
+            {
+                key: s[key].strip() if type(s[key]) is str else s[key]
+                for key in ['start', 'end', 'text']
+            }
+            for s in result.segments
+        ]
+
         video.save()

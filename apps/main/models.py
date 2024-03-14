@@ -26,6 +26,7 @@ class YoutubeVideo(CreatedUpdatedMixin):
     audio_file = models.FileField(upload_to='videos/audio/', blank=True, null=True)
     transcription = models.TextField(blank=True, null=True)
     transcription_language = models.CharField(max_length=10, blank=True, null=True)
+    transcription_segments = models.JSONField(default=list)
     summary = models.TextField(blank=True, null=True)
     voiced_summary = models.FileField(upload_to='videos/voiced/', blank=True, null=True)
 
