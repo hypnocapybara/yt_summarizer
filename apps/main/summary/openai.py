@@ -47,8 +47,19 @@ def summarize_video_openai(video: YoutubeVideo):
     if is_bad_language or not video.transcription:
         return
 
-    video.summary = summarize_text(video.transcription, language)
-    video.save()
+    has_chapters = True
+    if has_chapters and video.transcription_segments:
+        chapter_start = 0
+        chapter_end = 90
+
+        selected_segments = [
+            s for s in video.transcription_segments
+            if chapter_start <= s['start'] <= chapter_end or chapter_start <= s['end'] <= chapter_end
+        ]
+        segments_text = ''.join(s['text'] for s in selected_segments).strip()
+    else:
+        video.summary = summarize_text(video.transcription, language)
+        video.save()
 
 
 def summarize_text(text: str, language: str) -> str:
