@@ -23,6 +23,7 @@ class YoutubeVideo(CreatedUpdatedMixin):
     url = models.URLField()
     youtube_id = models.CharField(max_length=100, blank=True, null=True)
     title = models.CharField(max_length=200, blank=True, null=True)
+    chapters = models.JSONField(default=list)
     audio_file = models.FileField(upload_to='videos/audio/', blank=True, null=True)
     transcription = models.TextField(blank=True, null=True)
     transcription_language = models.CharField(max_length=10, blank=True, null=True)

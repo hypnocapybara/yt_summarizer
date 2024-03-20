@@ -76,6 +76,14 @@ def parse_video(video: YoutubeVideo):
 
     video.youtube_id = yt_video.video_id
     video.title = yt_video.title
+    video.chapters = [
+        {
+            "start": c.start_seconds,
+            "duration": c.duration,
+            "title": c.title
+        }
+        for c in yt_video.chapters
+    ]
     video.save()
 
     audio_streams = [stream for stream in yt_video.streams if stream.mime_type == "audio/mp4"]

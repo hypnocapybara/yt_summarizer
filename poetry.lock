@@ -3227,13 +3227,13 @@ cli = ["click (>=5.0)"]
 
 [[package]]
 name = "pytubefix"
-version = "1.13.3"
+version = "2.3.2"
 description = "Python3 library for downloading YouTube Videos."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pytubefix-1.13.3-py3-none-any.whl", hash = "sha256:66a3a7cc4035961aeab0174a03d196d5a90797f40956b00c88f0204a6df2c62c"},
-    {file = "pytubefix-1.13.3.tar.gz", hash = "sha256:e58528907e6afefc502e31175c5d7c72c85d2952e87d20ae05c84197750046f5"},
+    {file = "pytubefix-2.3.2-py3-none-any.whl", hash = "sha256:056c33f39f5846c81f0111754fe2f081afd23f8848cc82ee3802e3f79f0efdac"},
+    {file = "pytubefix-2.3.2.tar.gz", hash = "sha256:4d7598720191d7d755d8c6f781289800319f1b2db053d32584bd471dd21fcb87"},
 ]
 
 [[package]]
@@ -4978,4 +4978,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.12"
-content-hash = "95286aa1d81c8401302ab482de2e5007cea3577f77ad79af7932e849ad1744a7"
+content-hash = "02f438ac24653145715eafc6731cb5433c2bafe0512c42c6eb28c5425379a448"
