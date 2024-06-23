@@ -47,8 +47,7 @@ def summarize_video_openai(video: YoutubeVideo):
     if is_bad_language or not video.transcription:
         return
 
-    has_chapters = True
-    if has_chapters and video.transcription_segments:
+    if video.chapters and video.transcription_segments:
         chapter_start = 0
         chapter_end = 90
 
