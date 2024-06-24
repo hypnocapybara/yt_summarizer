@@ -2,27 +2,20 @@
 name = "summ"
 version = "0.1.0"
 description = ""
-authors = ["Alex <aleks@fellow.co>"]
+authors = ["Alex Polev <apolevki09@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.12"
-django = "^5.0.2"
-django-rq = "^2.10.1"
-google-api-python-client = "^2.111.0"
-openai-whisper = "^20231117"
-psycopg = "^3.1.15"
-transformers = "^4.36.2"
-bitsandbytes = "^0.42.0"
-accelerate = "^0.27.0"
-scipy = "^1.11.4"
-openai = "^1.12.0"
-python-dotenv = "^1.0.0"
+django = "^5.0.6"
+django-rq = "^2.10.2"
+psycopg = {extras = ["binary"], version = "^3.1.19"}
+openai = "^1.35.3"
+python-dotenv = "^1.0.1"
 nltk = "^3.8.1"
-tiktoken = "^0.6.0"
-tts = "^0.22.0"
-pytubefix = "^2.3.2"
-aiogram = "^3.3.0"
+tiktoken = "^0.7.0"
+pytubefix = "^5.6.3"
+aiogram = "^3.8.0"
 rq-scheduler = "^0.13.1"
 
 

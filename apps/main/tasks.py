@@ -1,13 +1,7 @@
 import io
-import os
-import random
-
-import torch
-import tempfile
 
 from django.utils import timezone
 from django_rq import job, get_queue
-from TTS.api import TTS
 
 from pytubefix import Channel, YouTube
 
@@ -136,39 +130,39 @@ def summarize_video(video: YoutubeVideo):
     summarize_video_openai(video)
     # voice_summary.delay(video)
 
-    _notify_telegram_users(video, 'Summarization done! Generating audio...')
+    _notify_telegram_users(video, 'Summarization done!')
 
 
-@job('ai', timeout=20 * 60)
-def voice_summary(video: YoutubeVideo):
-    print(f'running voice summary {str(video)}')
-
-    if not video.summary:
-        return
-
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    tts = TTS('tts_models/multilingual/multi-dataset/xtts_v2').to(device)
-    _fd, temp_filename = tempfile.mkstemp()
-    try:
-        if video.channel and video.channel.voice_file:
-            speaker_params = {'speaker_wav': video.channel.voice_file.path}
-        else:
-            speaker_params = {'speaker': random.choice(SPEAKERS)}
-
-        tts.tts_to_file(
-            text=video.summary,
-            language=video.transcription_language,
-            file_path=temp_filename,
-            **speaker_params,
-        )
-        with open(temp_filename, 'rb') as file:
-            video.voiced_summary.save(f'{video.youtube_id}.wav', file)
-            video.save()
-    finally:
-        os.remove(temp_filename)
-
-    queue = get_queue('default')
-    queue.enqueue('apps.telegram.tasks.send_video_notifications', video)
+# @job('ai', timeout=20 * 60)
+# def voice_summary(video: YoutubeVideo):
+#     print(f'running voice summary {str(video)}')
+#
+#     if not video.summary:
+#         return
+#
+#     device = 'cuda' if torch.cuda.is_available() else 'cpu'
+#     tts = TTS('tts_models/multilingual/multi-dataset/xtts_v2').to(device)
+#     _fd, temp_filename = tempfile.mkstemp()
+#     try:
+#         if video.channel and video.channel.voice_file:
+#             speaker_params = {'speaker_wav': video.channel.voice_file.path}
+#         else:
+#             speaker_params = {'speaker': random.choice(SPEAKERS)}
+#
+#         tts.tts_to_file(
+#             text=video.summary,
+#             language=video.transcription_language,
+#             file_path=temp_filename,
+#             **speaker_params,
+#         )
+#         with open(temp_filename, 'rb') as file:
+#             video.voiced_summary.save(f'{video.youtube_id}.wav', file)
+#             video.save()
+#     finally:
+#         os.remove(temp_filename)
+#
+#     queue = get_queue('default')
+#     queue.enqueue('apps.telegram.tasks.send_video_notifications', video)
 
 
 def _notify_telegram_users(video: YoutubeVideo, message: str):

@@ -1,4 +1,3 @@
-import django_rq
 from django.db import models
 
 from aiogram.types import User

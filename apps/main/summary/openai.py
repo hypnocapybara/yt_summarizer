@@ -111,7 +111,7 @@ def summarize_text(text: str, language: str) -> str:
 
     for chunk in chunks_buffer:
         completion = client.chat.completions.create(
-            model="gpt-4-1106-preview",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": INITIAL_PROMPTS[language]},
                 {"role": "user", "content": USER_INPUTS[language].format(text=chunk)}
