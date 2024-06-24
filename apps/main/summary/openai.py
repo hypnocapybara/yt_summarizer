@@ -1,3 +1,4 @@
+from datetime import timedelta
 from openai import OpenAI
 from nltk import tokenize
 from tiktoken import get_encoding
@@ -47,19 +48,33 @@ def summarize_video_openai(video: YoutubeVideo):
     if is_bad_language or not video.transcription:
         return
 
-    has_chapters = True
-    if has_chapters and video.transcription_segments:
-        chapter_start = 0
-        chapter_end = 90
+    if video.chapters and video.transcription_segments:
+        chapter_summaries = []
 
-        selected_segments = [
-            s for s in video.transcription_segments
-            if chapter_start <= s['start'] <= chapter_end or chapter_start <= s['end'] <= chapter_end
-        ]
-        segments_text = ''.join(s['text'] for s in selected_segments).strip()
+        for chapter in video.chapters:
+            chapter_start = chapter['start']
+            chapter_end = chapter['start'] + chapter['duration']
+            chapter_title = chapter['title']
+            chapter_timestamp = str(timedelta(seconds=chapter_start))
+            chapter_timestamp = chapter_timestamp[3:] if chapter_timestamp.startswith('00:') else chapter_timestamp
+            chapter_heading = f'[{chapter_timestamp}] {chapter_title}'
+
+            print(f'Summarizing chapter content: {chapter_heading}')
+
+            selected_segments = [
+                s for s in video.transcription_segments
+                if chapter_start <= s['start'] <= chapter_end or chapter_start <= s['end'] <= chapter_end
+            ]
+            segments_text = ''.join(s['text'] for s in selected_segments).strip()
+            segment_summary = summarize_text(segments_text, language)
+
+            chapter_summaries.append(f'{chapter_heading}\n{segment_summary}\n')
+
+        video.summary = '\n'.join(chapter_summaries)
     else:
         video.summary = summarize_text(video.transcription, language)
-        video.save()
+
+    video.save()
 
 
 def summarize_text(text: str, language: str) -> str:

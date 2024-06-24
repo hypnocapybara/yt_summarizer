@@ -134,7 +134,7 @@ def summarize_video(video: YoutubeVideo):
         return
 
     summarize_video_openai(video)
-    voice_summary.delay(video)
+    # voice_summary.delay(video)
 
     _notify_telegram_users(video, 'Summarization done! Generating audio...')
 
