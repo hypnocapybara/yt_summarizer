@@ -56,10 +56,9 @@ def send_video_to_user(video: 'YoutubeVideo', user: TelegramUser):
 
     result = _async_send_video_to_user(bot, telegram_video, video, user)
 
-    if not telegram_video:
+    if not telegram_video and result:
         telegram_video = TelegramVideo.objects.create(video=video, telegram_file_id=result.audio.file_id)
-
-    VideoNotification.objects.create(video=telegram_video, user=user)
+        VideoNotification.objects.create(video=telegram_video, user=user)
 
 
 @async_to_sync(force_new_loop=True)
@@ -69,7 +68,7 @@ async def _async_send_video_to_user(
     formatted = f'{hbold(video.title)}\n{video.url}\n\n{video.summary}'
 
     for i in range(0, len(formatted), 4000):
-        await bot.send_message(user.telegram_id, formatted[i:i+4000])
+        await bot.send_message(user.telegram_id, formatted[i:i+4000], parse_mode=ParseMode.HTML)
 
     if telegram_video:
         result = await bot.send_audio(
@@ -77,12 +76,14 @@ async def _async_send_video_to_user(
             telegram_video.telegram_file_id,
             caption=video.title
         )
-    else:
+    elif video.voiced_summary:
         result = await bot.send_audio(
             user.telegram_id,
             FSInputFile(video.voiced_summary.path),
             caption=video.title
         )
+    else:
+        result = None
 
     # Since we create a new bot instance and session, we should close it, to avoid asyncio warnings
     await bot.session.close()

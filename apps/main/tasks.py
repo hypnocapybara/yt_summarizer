@@ -12,6 +12,7 @@ from .voicening.openai import voicen_video_openai
 from apps.main.models import YoutubeChannel, YoutubeVideo
 
 BITRATE_THRESHOLD = 50_000
+ENABLE_VOICENING = False
 
 
 @job('default')
@@ -117,9 +118,13 @@ def summarize_video(video: YoutubeVideo):
         return
 
     summarize_video_openai(video)
-    voice_summary.delay(video)
 
-    _notify_telegram_users(video, 'Summarization done!')
+    if ENABLE_VOICENING:
+        voice_summary.delay(video)
+        _notify_telegram_users(video, 'Summarization done!')
+    else:
+        queue = get_queue('default')
+        queue.enqueue('apps.telegram.tasks.send_video_notifications', video)
 
 
 @job('ai', timeout=20 * 60)
