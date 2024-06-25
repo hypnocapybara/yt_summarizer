@@ -51,7 +51,7 @@ def _send_video_single_requests(video: 'YoutubeVideo'):
 
 @job('default')
 def send_video_to_user(video: 'YoutubeVideo', user: TelegramUser):
-    bot = Bot(settings.TELEGRAM_BOT_TOKEN, parse_mode=ParseMode.HTML)
+    bot = Bot(settings.TELEGRAM_BOT_TOKEN)
     telegram_video = TelegramVideo.objects.filter(video=video).first()
 
     result = _async_send_video_to_user(bot, telegram_video, video, user)
@@ -96,7 +96,7 @@ def notify_video_progress(video: 'YoutubeVideo', message: str):
     if video_requests.count() == 0:
         return
 
-    bot = Bot(settings.TELEGRAM_BOT_TOKEN, parse_mode=ParseMode.HTML)
+    bot = Bot(settings.TELEGRAM_BOT_TOKEN)
     telegram_users = [video_request.send_to for video_request in video_requests]
     _async_send_message_to_users(bot, telegram_users, message)
 

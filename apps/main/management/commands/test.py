@@ -1,14 +1,14 @@
 from django.core.management import BaseCommand
 from apps.main.models import YoutubeVideo
-from apps.main.tasks import parse_video
-from apps.main.summary.openai import summarize_video_openai
+from apps.main.tasks import voice_summary
 
 from pytubefix import YouTube
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        video = YoutubeVideo.objects.get(pk=1)
+        video = YoutubeVideo.objects.get(pk=32)
+        voice_summary(video)
         yt_video = YouTube(video.url)
         video.chapters = [
             {
