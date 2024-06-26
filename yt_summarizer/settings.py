@@ -152,3 +152,4 @@ load_dotenv()
 
 OPEN_AI_KEY = os.environ.get('OPEN_AI_KEY', '')
 TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '')
+ANTHROPIC_KEY = os.environ.get('ANTHROPIC_KEY', '')

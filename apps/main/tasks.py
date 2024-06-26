@@ -6,7 +6,7 @@ from django_rq import job, get_queue
 from pytubefix import Channel, YouTube
 
 from .transcription.openai import transcribe_video_openai
-from .summary.openai import summarize_video_openai
+from .summary.generic import summarize_video_generic
 from .voicening.openai import voicen_video_openai
 
 from apps.main.models import YoutubeChannel, YoutubeVideo
@@ -117,7 +117,7 @@ def summarize_video(video: YoutubeVideo):
         print("already have summary, skipping...")
         return
 
-    summarize_video_openai(video)
+    summarize_video_generic(video)
 
     if ENABLE_VOICENING:
         voice_summary.delay(video)
