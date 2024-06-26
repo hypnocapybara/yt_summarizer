@@ -6,23 +6,13 @@ from django_rq import job, get_queue
 from pytubefix import Channel, YouTube
 
 from .transcription.openai import transcribe_video_openai
-from .summary.openai import summarize_video_openai
+from .summary.generic import summarize_video_generic
+from .voicening.openai import voicen_video_openai
 
 from apps.main.models import YoutubeChannel, YoutubeVideo
 
 BITRATE_THRESHOLD = 50_000
-SPEAKERS = [
-    'Claribel Dervla', 'Daisy Studious', 'Gracie Wise', 'Tammie Ema', 'Alison Dietlinde', 'Ana Florence',
-    'Annmarie Nele', 'Asya Anara', 'Brenda Stern', 'Gitta Nikolina', 'Henriette Usha', 'Sofia Hellen',
-    'Tammy Grit', 'Tanja Adelina', 'Vjollca Johnnie', 'Andrew Chipper', 'Badr Odhiambo', 'Dionisio Schuyler',
-    'Royston Min', 'Viktor Eka', 'Abrahan Mack', 'Adde Michal', 'Baldur Sanjin', 'Craig Gutsy', 'Damien Black',
-    'Gilberto Mathias', 'Ilkin Urbano', 'Kazuhiko Atallah', 'Ludvig Milivoj', 'Suad Qasim', 'Torcull Diarmuid',
-    'Viktor Menelaos', 'Zacharie Aimilios', 'Nova Hogarth', 'Maja Ruoho', 'Uta Obando', 'Lidiya Szekeres',
-    'Chandra MacFarland', 'Szofi Granger', 'Camilla Holmström', 'Lilya Stainthorpe', 'Zofija Kendrick',
-    'Narelle Moon', 'Barbora MacLean', 'Alexandra Hisakawa', 'Alma María', 'Rosemary Okafor', 'Ige Behringer',
-    'Filip Traverse', 'Damjan Chapman', 'Wulf Carlevaro', 'Aaron Dreschner', 'Kumar Dahl', 'Eugenio Mataracı',
-    'Ferran Simen', 'Xavier Hayasaka', 'Luis Moray', 'Marcos Rudaski'
-]
+ENABLE_VOICENING = False
 
 
 @job('default')
@@ -127,42 +117,27 @@ def summarize_video(video: YoutubeVideo):
         print("already have summary, skipping...")
         return
 
-    summarize_video_openai(video)
-    # voice_summary.delay(video)
+    summarize_video_generic(video)
 
-    _notify_telegram_users(video, 'Summarization done!')
+    if ENABLE_VOICENING:
+        voice_summary.delay(video)
+        _notify_telegram_users(video, 'Summarization done!')
+    else:
+        queue = get_queue('default')
+        queue.enqueue('apps.telegram.tasks.send_video_notifications', video)
 
 
-# @job('ai', timeout=20 * 60)
-# def voice_summary(video: YoutubeVideo):
-#     print(f'running voice summary {str(video)}')
-#
-#     if not video.summary:
-#         return
-#
-#     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-#     tts = TTS('tts_models/multilingual/multi-dataset/xtts_v2').to(device)
-#     _fd, temp_filename = tempfile.mkstemp()
-#     try:
-#         if video.channel and video.channel.voice_file:
-#             speaker_params = {'speaker_wav': video.channel.voice_file.path}
-#         else:
-#             speaker_params = {'speaker': random.choice(SPEAKERS)}
-#
-#         tts.tts_to_file(
-#             text=video.summary,
-#             language=video.transcription_language,
-#             file_path=temp_filename,
-#             **speaker_params,
-#         )
-#         with open(temp_filename, 'rb') as file:
-#             video.voiced_summary.save(f'{video.youtube_id}.wav', file)
-#             video.save()
-#     finally:
-#         os.remove(temp_filename)
-#
-#     queue = get_queue('default')
-#     queue.enqueue('apps.telegram.tasks.send_video_notifications', video)
+@job('ai', timeout=20 * 60)
+def voice_summary(video: YoutubeVideo):
+    print(f'running voice summary {str(video)}')
+
+    if not video.summary:
+        return
+
+    voicen_video_openai(video)
+
+    queue = get_queue('default')
+    queue.enqueue('apps.telegram.tasks.send_video_notifications', video)
 
 
 def _notify_telegram_users(video: YoutubeVideo, message: str):

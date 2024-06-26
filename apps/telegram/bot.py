@@ -43,6 +43,6 @@ async def run_bot(token: str) -> None:
     dp.message(CommandStart())(command_start_handler)
     dp.message()(message_handler)
 
-    bot = Bot(token, parse_mode=ParseMode.HTML)
+    bot = Bot(token)
     dp.message.middleware(UserMiddleware())
     await dp.start_polling(bot)
