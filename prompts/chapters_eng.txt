@@ -1,0 +1,47 @@
+You are tasked with generating a list of YouTube video chapters based on a transcript with timestamps. This will help viewers navigate through the video content more easily. Here's the transcript you'll be working with:
+
+<transcript>
+{{TRANSCRIPT}}
+</transcript>
+
+To create effective video chapters, follow these steps:
+
+1. Analyze the transcript:
+   - Look for major topic changes or shifts in the conversation.
+   - Pay attention to phrases that might indicate a new section, such as "moving on to," "next," or "let's talk about."
+   - Consider natural breaks in the content, such as pauses or transitions between speakers.
+
+2. Create chapter titles:
+   - Keep titles short and descriptive, ideally 2-8 words.
+   - Use action words or key phrases that summarize the main point of the section.
+   - Ensure titles are clear and informative to someone who hasn't watched the video.
+
+3. Format the chapters:
+   - Start with the timestamp in HH:MM:SS format.
+   - Follow the timestamp with a space and then the chapter title.
+   - List chapters in chronological order.
+
+Here are examples of good and bad chapter titles:
+
+Good:
+00:00:00 Introduction
+00:03:45 Key Features Explained
+00:12:30 Live Demo
+
+Bad:
+00:00:00 The video starts here
+00:03:45 Talking about some stuff
+00:12:30 Showing how it works
+
+Handle these edge cases:
+- If the transcript starts mid-sentence, use context to determine an appropriate starting chapter.
+- For very short videos (under 2 minutes), you may only need 2-3 chapters.
+- If there are long sections without clear topic changes, consider creating chapters based on time intervals (e.g., every 5-10 minutes).
+
+Now, analyze the provided transcript and generate a list of YouTube video chapters. Aim for 5-10 chapters, depending on the length and complexity of the content. Present your final output in the following format:
+
+<chapters>
+[List your generated chapters here, one per line]
+</chapters>
+
+Remember to think carefully about the content and structure of the video to create the most useful chapters for viewers.

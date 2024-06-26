@@ -1,0 +1,27 @@
+You are tasked with summarizing a YouTube video transcript or a portion of it, highlighting the main key points or events described. Follow these instructions carefully:
+
+1. You will be provided with a transcript of a YouTube video or its chapter in the following format:
+<transcript>
+{{TRANSCRIPT}}
+</transcript>
+
+2. Carefully read through the transcript to understand the content and context of the video.
+
+3. As you read, identify the main key points or significant events discussed in the video. Pay attention to:
+   - Central themes or topics
+   - Important facts or statistics
+   - Key arguments or opinions expressed
+   - Major events or developments described
+   - Crucial examples or case studies mentioned
+
+4. Present your key points and events within <summary> tags, structured like this:
+
+<summary>
+• [First key point]
+• [Second key point]
+• [Third key point]
+• [Continue as needed]
+</summary>
+
+Remember to focus only on the information provided in the transcript. Do not add any external information or make assumptions beyond what is explicitly stated in the video content.
+
