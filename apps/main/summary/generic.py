@@ -93,7 +93,7 @@ def summarize_video_generic(video: YoutubeVideo):
             chapter_end = chapter['start'] + chapter['duration']
             chapter_title = chapter['title']
             chapter_timestamp = str(timedelta(seconds=chapter_start))
-            chapter_timestamp = chapter_timestamp[3:] if chapter_timestamp.startswith('00:') else chapter_timestamp
+            # chapter_timestamp = chapter_timestamp[3:] if chapter_timestamp.startswith('00:') else chapter_timestamp
             chapter_heading = f'[{chapter_timestamp}] {chapter_title}'
 
             print(f'Summarizing chapter content: {chapter_heading}')

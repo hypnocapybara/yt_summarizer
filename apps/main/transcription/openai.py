@@ -21,6 +21,7 @@ def transcribe_video_openai(video: YoutubeVideo):
             model="whisper-1",
             file=audio_file,
             response_format="verbose_json",
+            timestamp_granularities=["word"],
         )
         print("transcribed in", time() - time_start)
         video.transcription_language = LANGUAGES_MAP.get(result.language, 'unknown')

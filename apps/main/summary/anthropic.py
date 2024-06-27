@@ -30,11 +30,3 @@ def summarize_chunk(text: str, system_prompt: str, user_prompt: str) -> str:
     result = result.replace('\n\n', '\n')
 
     return result
-
-    if '<summary>' not in result or '</summary>' not in result:
-        return result
-
-    a = text.split('<summary>')[1].strip()
-    b = a.split('</summary>')[0].strip()
-    c = b.replace('\n\n', '\n')
-

@@ -1,19 +1,10 @@
-from datetime import timedelta
-
 from django.core.management import BaseCommand
-from django_rq import job, get_queue
 from apps.main.models import YoutubeVideo
-from apps.main.summary.generic import summarize_video_generic
-
-from pytubefix import YouTube
+from apps.main.summary.chapters import get_video_chapters
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
         video = YoutubeVideo.objects.get(pk=32)
-
-        for segment in video.transcription_segments:
-            timestamp = str(timedelta(seconds=int(segment['start'])))
-            text = segment['text']
-            line = f'[{timestamp}] {text}'
-            print(line)
+        chapters = get_video_chapters(video)
+        print(chapters)
