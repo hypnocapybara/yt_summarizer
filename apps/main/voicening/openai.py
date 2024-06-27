@@ -7,7 +7,7 @@ from pydub import AudioSegment
 from django.conf import settings
 
 from apps.main.models import YoutubeVideo
-from apps.main.summary.openai import TOKENIZER_LANGUAGES
+from apps.main.summary.generic import TOKENIZER_LANGUAGES
 
 MAX_CHUNK_LEN = 4096
 

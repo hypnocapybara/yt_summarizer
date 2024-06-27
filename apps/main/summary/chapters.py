@@ -1,3 +1,4 @@
+import re
 import anthropic
 
 from datetime import timedelta
@@ -59,11 +60,14 @@ CHAPTERS_PROMPT = """
 """
 
 
-def get_video_chapters(video: YoutubeVideo):
+def fill_video_chapters(video: YoutubeVideo):
     lines = []
 
+    if not video.transcription_segments:
+        return
+
     for segment in video.transcription_segments:
-        timestamp = str(timedelta(seconds=segment['start']))
+        timestamp = str(timedelta(seconds=int(segment['start'])))
         text = segment['text']
         line = f'[{timestamp}] {text}'
         lines.append(line)
@@ -91,5 +95,37 @@ def get_video_chapters(video: YoutubeVideo):
 
     result = '\n'.join([block.text for block in message.content])
     result = result.replace('\n\n', '\n')
+    result = result.split('<chapters>')[1].strip()
+    result = result.split('</chapters>')[0].strip()
 
-    return result
+    chapters = []
+    chapter_lines = result.split('\n')
+    last_segment_end = int(video.transcription_segments[-1]["end"])
+
+    for i, line in enumerate(chapter_lines):
+        time_parts = re.findall('\[(\d+):(\d+):(\d+)\]', line)[0]
+
+        hour, minute, second = time_parts
+        time_delta = timedelta(hours=int(hour), minutes=int(minute), seconds=int(second))
+        start = time_delta.seconds
+
+        title = line.split(']')[1].strip()
+
+        if i < len(chapter_lines) - 1:
+            next_line = chapter_lines[i+1]
+            next_time_parts = re.findall('\[(\d+):(\d+):(\d+)\]', next_line)[0]
+            hour, minute, second = next_time_parts
+            time_delta = timedelta(hours=int(hour), minutes=int(minute), seconds=int(second))
+            next_start = time_delta.seconds
+            duration = next_start - start
+        else:
+            duration = last_segment_end - start
+
+        chapters.append({
+            "start": int(start),
+            "title": title,
+            "duration": int(duration),
+        })
+
+    video.chapters = chapters
+    video.save()
