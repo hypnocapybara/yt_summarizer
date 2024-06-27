@@ -2,7 +2,7 @@ You are tasked with summarizing a YouTube video transcript or a portion of it, h
 
 1. You will be provided with a transcript of a YouTube video or its chapter in the following format:
 <transcript>
-{{TRANSCRIPT}}
+{text}
 </transcript>
 
 2. Carefully read through the transcript to understand the content and context of the video.
@@ -24,4 +24,3 @@ You are tasked with summarizing a YouTube video transcript or a portion of it, h
 </summary>
 
 Remember to focus only on the information provided in the transcript. Do not add any external information or make assumptions beyond what is explicitly stated in the video content.
-

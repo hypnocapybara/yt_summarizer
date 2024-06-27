@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.core.management import BaseCommand
 from django_rq import job, get_queue
 from apps.main.models import YoutubeVideo
@@ -9,4 +11,9 @@ from pytubefix import YouTube
 class Command(BaseCommand):
     def handle(self, *args, **options):
         video = YoutubeVideo.objects.get(pk=32)
-        summarize_video_generic(video)
+
+        for segment in video.transcription_segments:
+            timestamp = str(timedelta(seconds=int(segment['start'])))
+            text = segment['text']
+            line = f'[{timestamp}] {text}'
+            print(line)

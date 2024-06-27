@@ -13,28 +13,63 @@ INITIAL_PROMPTS = {
 
 USER_INPUTS = {
     'en': """
-The following text in triple quotes is a transcript part
+You are tasked with summarizing a YouTube video transcript or a portion of it, highlighting the main key points or events described. Follow these instructions carefully:
 
-```
+1. You will be provided with a transcript of a YouTube video or its chapter in the following format:
+<transcript>
 {text}
-```
+</transcript>
 
-Based on it, highlight key moments, using the author's direct words whenever possible.
-Use hyphens for a key moments list. For example:
-- key moment 1
-- key moment 2
+2. Carefully read through the transcript to understand the content and context of the video.
+
+3. As you read, identify the main key points or significant events discussed in the video. Pay attention to:
+   - Central themes or topics
+   - Important facts or statistics
+   - Key arguments or opinions expressed
+   - Major events or developments described
+   - Crucial examples or case studies mentioned
+
+4. Present your key points and events within <summary> tags, structured like this:
+
+<summary>
+- [First key point]
+- [Second key point]
+- [Third key point]
+- [Continue as needed]
+</summary>
+
+Remember to focus only on the information provided in the transcript. Do not add any external information or make assumptions beyond what is explicitly stated in the video content.
+
 """,
     'ru': """
-Следующий текст в тройных кавчках - это часть транскрипта
+Вам поручено суммаризировать транскрипт (стенограмму) YouTube видео или его часть, выделяя основные ключевые моменты или описанные события.
+Внимательно следуйте этим инструкциям:
 
-```
+1. Вам будет предоставлен транскрипт видео YouTube или его главы в следующем формате:
+<transcript>
 {text}
-```
+</transcript>
 
-Основываясь на нем, выдели основные ключевые моменты, по возможости используя прямые слова автора.
-Используй дефисы для списка ключевых моментов. Пример:
-- ключевой момент 1
-- ключевой момент 2
+2. Внимательно прочитайте транскрипт, чтобы понять содержание и контекст видео.
+
+3. Во время чтения определите основные ключевые моменты или значимые события, обсуждаемые в видео. Обратите внимание на:
+- Центральные темы или темы
+- Важные факты или статистику
+- Ключевые аргументы или высказанные мнения
+- Описанные основные события или разработки
+- Упомянутые важные примеры или тематические исследования
+
+4. Представьте свои ключевые моменты и события в тегах <summary>, структурированных следующим образом:
+
+<summary>
+- [Первый ключевой момент]
+- [Второй ключевой момент]
+- [Третий ключевой момент]
+- [Продолжите по мере необходимости]
+</summary>
+
+Помните, что нужно сосредоточиться только на информации, представленной в стенограмме.
+Не добавляйте никакой внешней информации и не делайте предположений сверх того, что явно указано в транскрипте.
 """,
 }
 
@@ -115,6 +150,11 @@ def summarize_text(text: str, language: str) -> str:
 
     for chunk in chunks:
         result = summarize_chunk_anthropic(chunk, INITIAL_PROMPTS[language], USER_INPUTS[language])
+
+        if '<summary>' in result and '</summary>' in result:
+            result = result.split('<summary>')[1].strip()
+            result = result.split('</summary>')[0].strip()
+
         summaries.append(result)
 
     return '\n'.join(summaries)
