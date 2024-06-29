@@ -100,6 +100,8 @@ def fill_video_chapters(video: YoutubeVideo):
 
     chapters = []
     chapter_lines = result.split('\n')
+    print(f'Successfully fetched {len(chapter_lines)} chapters')
+
     last_segment_end = int(video.transcription_segments[-1]["end"])
 
     for i, line in enumerate(chapter_lines):

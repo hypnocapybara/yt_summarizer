@@ -8,8 +8,8 @@ from apps.main.summary.generic import summarize_video_generic
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        video = YoutubeVideo.objects.get(pk=34)
-        # parse_video(video)
+        video = YoutubeVideo.objects.get(pk=35)
+        parse_video(video)
         # transcribe_video_openai(video)
         # fill_video_chapters(video)
-        summarize_video_generic(video)
+        # summarize_video_generic(video)
