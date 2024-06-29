@@ -37,7 +37,7 @@ def parse_channel(channel: YoutubeChannel):
     except IndexError:
         return
 
-    if YoutubeVideo.objects.filter(channel=channel, youtube_id=last_video.video_id).exists():
+    if YoutubeVideo.objects.filter(youtube_id=last_video.video_id).exists():
         return
 
     new_video = YoutubeVideo.objects.create(
