@@ -2,13 +2,16 @@ from datetime import timedelta
 from nltk import tokenize
 from tiktoken import get_encoding
 
-from .anthropic import summarize_chunk as summarize_chunk_anthropic
 from apps.main.models import YoutubeVideo
+
+from .anthropic import summarize_chunk as summarize_chunk_anthropic
+from .llama import summarize_chunk as summarize_chunk_llama
+from .openai import summarize_chunk as summarize_chunk_openai
 
 
 INITIAL_PROMPTS = {
     'en': 'You are the smart summarizer for YouTube video transcriptions. You can highlighting the main key points and described events',
-    'ru': 'Ты - умный суммаризатор транскрипций YouTube видео. Ты выделяешь ключевые моменты и описываемые события',
+    'ru': 'Ты - умный суммаризатор транскрипций YouTube видео. Ты выделяешь ключевые моменты и описываемые события. Отвечай на русском языке.',
 }
 
 USER_INPUTS = {
@@ -78,6 +81,21 @@ TOKENIZER_LANGUAGES = {
     'ru': 'russian',
 }
 
+SUMMARIZERS = {
+    'anthropic': {
+        'func': summarize_chunk_anthropic,
+        'context_window': 200000,
+    },
+    'openai': {
+        'func': summarize_chunk_openai,
+        'context_window': 128000
+    },
+    'summarize_chunk_llama': {
+        'func': summarize_chunk_llama,
+        'context_window': 8000,
+    }
+}
+
 
 def summarize_video_generic(video: YoutubeVideo):
     language = video.transcription_language
@@ -142,14 +160,18 @@ def split_text_in_chunks(text: str, language: str, max_tokens_count_in_chunk: in
     return chunks_buffer
 
 
-def summarize_text(text: str, language: str) -> str:
-    chunks = split_text_in_chunks(text, language, 198000)
+def summarize_text(text: str, language: str, summarizer_key: str = 'anthropic') -> str:
+    summarizer = SUMMARIZERS[summarizer_key]
+    func = summarizer['func']
+    context_window = summarizer['context_window']
+
+    chunks = split_text_in_chunks(text, language, context_window)
     summaries = []
 
     print(f'Gonna summarize {len(chunks)} chunks')
 
     for chunk in chunks:
-        result = summarize_chunk_anthropic(chunk, INITIAL_PROMPTS[language], USER_INPUTS[language])
+        result = func(chunk, INITIAL_PROMPTS[language], USER_INPUTS[language])
 
         if '<summary>' in result and '</summary>' in result:
             result = result.split('<summary>')[1].strip()

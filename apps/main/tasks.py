@@ -5,6 +5,7 @@ from django_rq import job, get_queue
 
 from pytubefix import Channel, YouTube
 
+from .summary.chapters import fill_video_chapters
 from .transcription.openai import transcribe_video_openai
 from .summary.generic import summarize_video_generic
 from .voicening.openai import voicen_video_openai
@@ -116,6 +117,12 @@ def summarize_video(video: YoutubeVideo):
     if video.summary:
         print("already have summary, skipping...")
         return
+
+    if not video.chapters:
+        try:
+            fill_video_chapters(video)
+        except:
+            pass
 
     summarize_video_generic(video)
 
