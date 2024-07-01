@@ -5,7 +5,7 @@ from django.conf import settings
 
 def summarize_chunk(text: str, system_prompt: str, user_prompt: str) -> str:
     client = OpenAI(
-        api_key=settings.MY_LLAMA_KEY,
+        api_key=settings.RUNPOD_API_KEY,
         base_url=f'https://api.runpod.ai/v2/{settings.MY_LLAMA_ID}/openai/v1',
     )
 

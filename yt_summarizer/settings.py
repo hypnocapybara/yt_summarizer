@@ -153,5 +153,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 OPEN_AI_KEY = os.environ.get('OPEN_AI_KEY', '')
 TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '')
 ANTHROPIC_KEY = os.environ.get('ANTHROPIC_KEY', '')
-MY_LLAMA_KEY = os.environ.get('MY_LLAMA_KEY', '')
+RUNPOD_API_KEY = os.environ.get('RUNPOD_API_KEY', '')
 MY_LLAMA_ID = os.environ.get('MY_LLAMA_ID', '')
+MY_WHISPER_ID = os.environ.get('MY_WHISPER_ID', '')
