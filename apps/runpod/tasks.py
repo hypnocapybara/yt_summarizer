@@ -1,10 +1,12 @@
 import requests
 
 from django.conf import settings
+from django_rq import job
 
 from apps.main.models import YoutubeVideo
 
 
+@job('default')
 def transcribe_video_runpod_whisper(video: YoutubeVideo):
     url = f'https://{settings.BASE_DOMAIN}{video.audio_file.url}'
     print('Audio URL', url)
@@ -23,7 +25,7 @@ def transcribe_video_runpod_whisper(video: YoutubeVideo):
     })
     result.raise_for_status()
 
-    print(result.json())
+    output = result.json()
 
 
 def get_transcription(video: YoutubeVideo, task_id: str):

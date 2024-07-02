@@ -6,11 +6,12 @@ from django_rq import job, get_queue
 from pytubefix import Channel, YouTube
 
 from .summary.chapters import fill_video_chapters
-from .transcription.openai import transcribe_video_openai
 from .summary.generic import summarize_video_generic
+from .transcription.openai import transcribe_video_openai
 from .voicening.openai import voicen_video_openai
 
 from apps.main.models import YoutubeChannel, YoutubeVideo
+from apps.runpod.tasks import transcribe_video_runpod_whisper
 
 BITRATE_THRESHOLD = 50_000
 ENABLE_VOICENING = False
@@ -91,7 +92,7 @@ def parse_video(video: YoutubeVideo):
     video.audio_file.save(f'{video.youtube_id}.{stream.subtype}', buffer)
     video.save()
 
-    transcribe_video.delay(video)
+    transcribe_video_runpod_whisper.delay(video)
 
     _notify_telegram_users(video, 'Video fetched! Running transcript...')
 
