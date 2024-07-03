@@ -52,6 +52,7 @@ INSTALLED_APPS = [
 
     'apps.main',
     'apps.telegram',
+    'apps.runpod',
 ]
 
 MIDDLEWARE = [

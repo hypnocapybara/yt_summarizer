@@ -4,18 +4,21 @@ from django.conf import settings
 from django_rq import job
 
 from apps.main.models import YoutubeVideo
+from .models import TranscriptionTask
 
 
 @job('default')
 def transcribe_video_runpod_whisper(video: YoutubeVideo):
     url = f'https://{settings.BASE_DOMAIN}{video.audio_file.url}'
     print('Audio URL', url)
+    webhook_url = f'https://{settings.BASE_DOMAIN}/runpod/webhook'
 
     data = {
         'input': {
             'audio': url,
             'model': 'large-v3',
-        }
+        },
+        'webhook': webhook_url,
     }
 
     endpoint_id = settings.MY_WHISPER_ID
@@ -26,6 +29,12 @@ def transcribe_video_runpod_whisper(video: YoutubeVideo):
     result.raise_for_status()
 
     output = result.json()
+    task_id = output['id']
+
+    TranscriptionTask.objects.create(
+        video=video,
+        task_id=task_id
+    )
 
 
 def get_transcription(video: YoutubeVideo, task_id: str):
