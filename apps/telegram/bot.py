@@ -50,7 +50,6 @@ async def message_handler(message: types.Message, user: TelegramUser) -> None:
         await SingleVideoToSend.objects.acreate(video=video, send_to=user)
 
 
-
 @sync_to_async
 def _schedule_video_for_processing(video: YoutubeVideo):
     queue = django_rq.get_queue('default')
