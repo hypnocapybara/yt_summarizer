@@ -1,6 +1,7 @@
 from django.db import models
 
 from aiogram.types import User
+from pytubefix import YouTube
 
 from apps.main.models import YoutubeVideo
 from apps.main.mixins import CreatedUpdatedMixin
@@ -66,12 +67,16 @@ class SingleVideoToSend(CreatedUpdatedMixin):
     is_sent = models.BooleanField(default=False)
 
     @staticmethod
-    async def schedule_to_send(url: str, user: TelegramUser) -> YoutubeVideo | None:
-        if 'youtube.com' not in url and 'youtu.be' not in url:
-            return
+    async def schedule_to_send(url: str, user: TelegramUser) -> tuple[YoutubeVideo | None, bool]:
+        youtube_video = YouTube(url)
+        video_id = youtube_video.video_id
+        created = False
+        try:
+            video = await YoutubeVideo.objects.aget(youtube_id=video_id)
+        except YoutubeVideo.DoesNotExist:
+            # TODO: support for existing videos (get or create)
+            video = await YoutubeVideo.objects.acreate(url=url)
+            created = True
+            await SingleVideoToSend.objects.acreate(video=video, send_to=user)
 
-        # TODO: support for existing videos (get or create)
-        video = await YoutubeVideo.objects.acreate(url=url)
-        await SingleVideoToSend.objects.acreate(video=video, send_to=user)
-
-        return video
+        return video, created

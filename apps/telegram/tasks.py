@@ -54,15 +54,14 @@ def send_video_to_user(video: 'YoutubeVideo', user: TelegramUser):
     bot = Bot(settings.TELEGRAM_BOT_TOKEN)
     telegram_video = TelegramVideo.objects.filter(video=video).first()
 
-    result = _async_send_video_to_user(bot, telegram_video, video, user)
+    result = sync_async_send_video_to_user(bot, telegram_video, video, user)
 
     if not telegram_video and result:
         telegram_video = TelegramVideo.objects.create(video=video, telegram_file_id=result.audio.file_id)
         VideoNotification.objects.create(video=telegram_video, user=user)
 
 
-@async_to_sync(force_new_loop=True)
-async def _async_send_video_to_user(
+async def async_send_video_to_user(
         bot: Bot, telegram_video: TelegramVideo | None, video: 'YoutubeVideo', user: TelegramUser
 ):
     formatted = f'{hbold(video.title)}\n{video.url}\n\n{video.summary}'
@@ -89,6 +88,9 @@ async def _async_send_video_to_user(
     await bot.session.close()
 
     return result
+
+
+sync_async_send_video_to_user = async_to_sync(force_new_loop=True)(async_send_video_to_user)
 
 
 @job('default')
