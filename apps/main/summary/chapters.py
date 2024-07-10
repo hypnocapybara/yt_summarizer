@@ -8,8 +8,11 @@ from django.conf import settings
 from apps.main.models import YoutubeVideo
 
 MODEL_ID = "claude-3-5-sonnet-20240620"
-SYSTEM_PROMPT = "Ты - умный анализатор транскрипций (стенограмм) YouTube видео. Ты умеешь выделять главы (части) на основе транскрипта"
-CHAPTERS_PROMPT = """
+SYSTEM_PROMPT_RU = "Ты - умный анализатор транскрипций (стенограмм) YouTube видео. Ты умеешь выделять главы (части) на основе транскрипта"
+SYSTEM_PROMPT_EN = "You are smart YouTube video transcript analyzer. You can generate chapters based on the transcription"
+
+
+CHAPTERS_PROMPT_RU = """
 Вам поручено создать список глав YouTube видео на основе транскрипта с временными метками. Это поможет зрителям легче ориентироваться в видеоконтенте. Вот транскрипт, с которым вы будете работать:
 
 <transcript>
@@ -47,7 +50,7 @@ CHAPTERS_PROMPT = """
 
 Обработайте эти пограничные случаи:
 - Если расшифровка начинается с середины предложения, используйте контекст, чтобы определить подходящую начальную главу.
-- Для очень коротких видео (менее 2 минут) вам может понадобиться всего 2-3 главы.
+- Для очень коротких видео (менее 5 минут) вам может понадобиться всего 2-3 главы.
 - Если есть длинные разделы без четкой смены тем, рассмотрите возможность создания глав на основе временных интервалов (например, каждые 5-10 минут).
 
 Теперь проанализируйте предоставленную расшифровку и сгенерируйте список глав видео YouTube. Нацельтесь на 5-10 глав, в зависимости от длины и сложности контента. Представьте свой окончательный результат в следующем формате:
@@ -59,11 +62,69 @@ CHAPTERS_PROMPT = """
 Не забудьте тщательно продумать содержание и структуру видео, чтобы создать наиболее полезные главы для зрителей.
 """
 
+CHAPTERS_PROMPT_EN = """
+You are tasked with generating a list of YouTube video chapters based on a transcript with timestamps. This will help viewers navigate through the video content more easily. Here's the transcript you'll be working with:
+
+<transcript>
+{{TRANSCRIPT}}
+</transcript>
+
+To create effective video chapters, follow these steps:
+
+1. Analyze the transcript:
+   - Look for major topic changes or shifts in the conversation.
+   - Pay attention to phrases that might indicate a new section, such as "moving on to," "next," or "let's talk about."
+   - Consider natural breaks in the content, such as pauses or transitions between speakers.
+
+2. Create chapter titles:
+   - Keep titles short and descriptive, ideally 2-8 words.
+   - Use action words or key phrases that summarize the main point of the section.
+   - Ensure titles are clear and informative to someone who hasn't watched the video.
+
+3. Format the chapters:
+   - Start with the timestamp in HH:MM:SS format.
+   - Follow the timestamp with a space and then the chapter title.
+   - List chapters in chronological order.
+
+Here are examples of good and bad chapter titles:
+
+Good:
+[0:00:00] Introduction
+[0:03:45] Key Features Explained
+[0:12:30] Live Demo
+
+Bad:
+[0:00:00] The video starts here
+[0:03:45] Talking about some stuff
+[0:12:30] Showing how it works
+
+Handle these edge cases:
+- If the transcript starts mid-sentence, use context to determine an appropriate starting chapter.
+- For very short videos (under 5 minutes), you may only need 2-3 chapters.
+- If there are long sections without clear topic changes, consider creating chapters based on time intervals (e.g., every 5-10 minutes).
+
+Now, analyze the provided transcript and generate a list of YouTube video chapters. Aim for 5-10 chapters, depending on the length and complexity of the content. Present your final output in the following format:
+
+<chapters>
+[List your generated chapters here, one per line]
+</chapters>
+
+Remember to think carefully about the content and structure of the video to create the most useful chapters for viewers.
+"""
 
 def fill_video_chapters(video: YoutubeVideo):
     lines = []
 
     if not video.transcription_segments:
+        return
+
+    if video.transcription_language == 'en':
+        system_prompt = SYSTEM_PROMPT_EN
+        user_prompt = CHAPTERS_PROMPT_EN
+    elif video.transcription_language == 'ru':
+        system_prompt = SYSTEM_PROMPT_RU
+        user_prompt = CHAPTERS_PROMPT_RU
+    else:
         return
 
     for segment in video.transcription_segments:
@@ -79,14 +140,14 @@ def fill_video_chapters(video: YoutubeVideo):
         model=MODEL_ID,
         max_tokens=4096,
         temperature=0,
-        system=SYSTEM_PROMPT,
+        system=system_prompt,
         messages=[
             {
                 "role": "user",
                 "content": [
                     {
                         "type": "text",
-                        "text": CHAPTERS_PROMPT.format(text=transcript_text)
+                        "text": user_prompt.format(text=transcript_text)
                     }
                 ]
             }
