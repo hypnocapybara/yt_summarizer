@@ -9,9 +9,9 @@ from apps.main.summary.generic import summarize_video_generic
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        video = YoutubeVideo.objects.get(pk=40)
+        video = YoutubeVideo.objects.get(pk=26)
         # parse_video(video)
-        transcribe_video_runpod_whisper(video)
+        # transcribe_video_runpod_whisper(video)
         # task_id = 'f4f1c7ad-dde4-4171-9016-e90382d4a438-u1'
         # get_transcription(video, task_id)
         # parse_video(video)

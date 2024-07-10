@@ -1,7 +1,7 @@
 import requests
 
 from django.conf import settings
-from django_rq import job
+from django_rq import job, get_queue
 
 from apps.main.models import YoutubeVideo
 from .models import TranscriptionTask
@@ -65,3 +65,15 @@ def get_transcription(video: YoutubeVideo, task_id: str):
     ]
 
     video.save()
+
+
+@job('default')
+def fetch_transcription_task(video: YoutubeVideo, task_id: str):
+    get_transcription(video, task_id)
+
+    queue = get_queue('default')
+    message = 'Transcription done! Running summarization...'
+    queue.enqueue('apps.telegram.tasks.notify_video_progress', video, message)
+
+    ai_queue = get_queue('ai')
+    ai_queue.enqueue('apps.main.tasks.summarize_video', video)

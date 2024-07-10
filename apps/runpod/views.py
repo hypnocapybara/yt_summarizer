@@ -2,10 +2,9 @@ import json
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django_rq import get_queue
 
 from .models import TranscriptionTask
-from .tasks import get_transcription
+from .tasks import fetch_transcription_task
 
 
 @csrf_exempt
@@ -26,16 +25,7 @@ def webhook(request):
         print('[webhook] TranscriptionTask was not found')
         return
 
-    video = task.video
-
-    get_transcription(video, task_id)
-
-    queue = get_queue('default')
-    message = 'Transcription done! Running summarization...'
-    queue.enqueue('apps.telegram.tasks.notify_video_progress', video, message)
-
-    ai_queue = get_queue('ai')
-    ai_queue.enqueue('apps.main.tasks.summarize_video', video)
+    fetch_transcription_task.delay(task.video, task_id)
 
     return JsonResponse({
         'ok': True

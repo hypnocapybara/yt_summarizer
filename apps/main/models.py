@@ -1,4 +1,5 @@
 from django.db import models
+from pydub import AudioSegment
 
 from .mixins import CreatedUpdatedMixin
 
@@ -37,3 +38,13 @@ class YoutubeVideo(CreatedUpdatedMixin):
 
     def __str__(self):
         return self.title or self.url
+
+    def get_duration(self) -> int | None:
+        if self.transcription_segments:
+            return int(self.transcription_segments[-1]["end"])
+
+        if self.audio_file:
+            audio = AudioSegment.from_file(self.audio_file.path)
+            return int(audio.duration_seconds)
+
+        return None

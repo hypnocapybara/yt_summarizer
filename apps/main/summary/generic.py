@@ -90,7 +90,7 @@ SUMMARIZERS = {
         'func': summarize_chunk_openai,
         'context_window': 128000
     },
-    'summarize_chunk_llama': {
+    'llama': {
         'func': summarize_chunk_llama,
         'context_window': 8000,
     }

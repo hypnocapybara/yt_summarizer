@@ -119,7 +119,9 @@ def summarize_video(video: YoutubeVideo):
         print("already have summary, skipping...")
         return
 
-    if not video.chapters:
+    duration = video.get_duration()
+
+    if duration and duration > 10 * 60 and not video.chapters:
         try:
             fill_video_chapters(video)
         except:
