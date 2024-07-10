@@ -66,7 +66,7 @@ CHAPTERS_PROMPT_EN = """
 You are tasked with generating a list of YouTube video chapters based on a transcript with timestamps. This will help viewers navigate through the video content more easily. Here's the transcript you'll be working with:
 
 <transcript>
-{{TRANSCRIPT}}
+{text}
 </transcript>
 
 To create effective video chapters, follow these steps:
@@ -111,6 +111,7 @@ Now, analyze the provided transcript and generate a list of YouTube video chapte
 
 Remember to think carefully about the content and structure of the video to create the most useful chapters for viewers.
 """
+
 
 def fill_video_chapters(video: YoutubeVideo):
     lines = []
