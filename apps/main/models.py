@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from django.db import models
 from pydub import AudioSegment
 
@@ -48,3 +49,11 @@ class YoutubeVideo(CreatedUpdatedMixin):
             return int(audio.duration_seconds)
 
         return None
+
+
+@dataclass
+class Chapter:
+    title: str
+    start: int
+    time_label: str
+    lines: list[str]
