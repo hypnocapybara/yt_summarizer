@@ -9,11 +9,12 @@ from apps.main.mixins import CreatedUpdatedMixin
 
 class TelegramUser(CreatedUpdatedMixin):
     telegram_id = models.BigIntegerField(primary_key=True)
+    enabled = models.BooleanField(default=False)
     first_name = models.CharField(max_length=100, blank=True, null=True)
     last_name = models.CharField(max_length=100, blank=True, null=True)
     username = models.CharField(max_length=100, blank=True, null=True)
 
-    subscriptions = models.ManyToManyField('main.YoutubeChannel', related_name='+')
+    subscriptions = models.ManyToManyField('main.YoutubeChannel', related_name='+', blank=True)
 
     def __str__(self):
         parts = []

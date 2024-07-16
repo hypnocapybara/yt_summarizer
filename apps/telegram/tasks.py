@@ -22,7 +22,7 @@ MAX_MESSAGE_LEN = 4000
 
 @job('default')
 def send_video_notifications(video: 'YoutubeVideo'):
-    subscribers = TelegramUser.objects.filter(subscriptions=video.channel)
+    subscribers = TelegramUser.objects.filter(subscriptions=video.channel, enabled=True)
     if subscribers.count() == 0:
         _send_video_single_requests.delay(video)
         return

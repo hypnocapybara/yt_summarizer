@@ -29,6 +29,10 @@ async def message_handler(message: types.Message, user: TelegramUser) -> None:
         await message.answer("Bad URL!")
         return
 
+    if not user.enabled:
+        await message.answer("You are not enabled user!")
+        return
+
     youtube_video = YouTube(url)
     video_id = youtube_video.video_id
 
