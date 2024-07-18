@@ -15,7 +15,9 @@ def webhook(request):
     status = data['status']
     if status != 'COMPLETED':
         print('[webhook] the task is not completed')
-        return
+        return JsonResponse({
+            'ok': True
+        })
 
     try:
         task = TranscriptionTask.objects.get(
@@ -23,7 +25,9 @@ def webhook(request):
         )
     except TranscriptionTask.DoesNotExist:
         print('[webhook] TranscriptionTask was not found')
-        return
+        return JsonResponse({
+            'ok': True
+        })
 
     fetch_transcription_task.delay(task.video, task_id)
 
