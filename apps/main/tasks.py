@@ -123,11 +123,11 @@ def summarize_video(video: YoutubeVideo):
 
     if duration and duration > 10 * 60 and not video.chapters:
         try:
-            fill_video_chapters(video)
+            fill_video_chapters(video, 'openai')
         except:
             pass
 
-    summarize_video_generic(video)
+    summarize_video_generic(video, 'openai')
 
     if ENABLE_VOICENING:
         voice_summary.delay(video)

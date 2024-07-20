@@ -1,4 +1,6 @@
 from datetime import timedelta
+from typing import Literal
+
 from nltk import tokenize
 from tiktoken import get_encoding
 
@@ -97,7 +99,7 @@ SUMMARIZERS = {
 }
 
 
-def summarize_video_generic(video: YoutubeVideo):
+def summarize_video_generic(video: YoutubeVideo, summarizer_key: Literal['anthropic', 'openai', 'llama'] = 'anthropic'):
     language = video.transcription_language
     is_bad_language = language not in INITIAL_PROMPTS or language not in USER_INPUTS
     if is_bad_language or not video.transcription:
@@ -121,13 +123,13 @@ def summarize_video_generic(video: YoutubeVideo):
                 if chapter_start <= s['start'] <= chapter_end or chapter_start <= s['end'] <= chapter_end
             ]
             segments_text = ''.join(s['text'] for s in selected_segments).strip()
-            segment_summary = summarize_text(segments_text, language)
+            segment_summary = summarize_text(segments_text, language, summarizer_key)
 
             chapter_summaries.append(f'{chapter_heading}\n{segment_summary}\n')
 
         video.summary = '\n'.join(chapter_summaries)
     else:
-        video.summary = summarize_text(video.transcription, language)
+        video.summary = summarize_text(video.transcription, language, summarizer_key)
 
     video.save()
 
@@ -160,7 +162,9 @@ def split_text_in_chunks(text: str, language: str, max_tokens_count_in_chunk: in
     return chunks_buffer
 
 
-def summarize_text(text: str, language: str, summarizer_key: str = 'anthropic') -> str:
+def summarize_text(
+        text: str, language: str, summarizer_key: Literal['anthropic', 'openai', 'llama'] = 'anthropic'
+) -> str:
     summarizer = SUMMARIZERS[summarizer_key]
     func = summarizer['func']
     context_window = summarizer['context_window']

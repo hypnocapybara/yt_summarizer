@@ -1,9 +1,12 @@
 import re
+from typing import Literal
+
 import anthropic
 
 from datetime import timedelta
 
 from django.conf import settings
+from openai import OpenAI
 
 from apps.main.models import YoutubeVideo
 
@@ -113,7 +116,7 @@ Remember to think carefully about the content and structure of the video to crea
 """
 
 
-def fill_video_chapters(video: YoutubeVideo):
+def fill_video_chapters(video: YoutubeVideo, model: Literal['anthropic', 'openai'] = 'anthropic'):
     lines = []
 
     if not video.transcription_segments:
@@ -136,26 +139,41 @@ def fill_video_chapters(video: YoutubeVideo):
 
     transcript_text = '\n'.join(lines)
 
-    client = anthropic.Anthropic(api_key=settings.ANTHROPIC_KEY)
-    message = client.messages.create(
-        model=MODEL_ID,
-        max_tokens=4096,
-        temperature=0,
-        system=system_prompt,
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": user_prompt.format(text=transcript_text)
-                    }
-                ]
-            }
-        ]
-    )
+    if model == 'anthropic':
+        client = anthropic.Anthropic(api_key=settings.ANTHROPIC_KEY)
+        message = client.messages.create(
+            model=MODEL_ID,
+            max_tokens=4096,
+            temperature=0,
+            system=system_prompt,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": user_prompt.format(text=transcript_text)
+                        }
+                    ]
+                }
+            ]
+        )
+        result = '\n'.join([block.text for block in message.content])
+    elif model == 'openai':
+        client = OpenAI(api_key=settings.OPEN_AI_KEY)
 
-    result = '\n'.join([block.text for block in message.content])
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini",
+            temperature=0,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt.format(text=transcript_text)}
+            ]
+        )
+        result = str(completion.choices[0].message.content)
+    else:
+        return
+
     result = result.replace('\n\n', '\n')
     result = result.split('<chapters>')[1].strip()
     result = result.split('</chapters>')[0].strip()
