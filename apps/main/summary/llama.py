@@ -10,7 +10,7 @@ def summarize_chunk(text: str, system_prompt: str, user_prompt: str) -> str:
     )
 
     response = client.chat.completions.create(
-        model="meta-llama/Meta-Llama-3-8B-Instruct",
+        model="meta-llama/Meta-Llama-3.1-8B-Instruct",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt.format(text=text)},

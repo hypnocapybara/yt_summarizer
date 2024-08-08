@@ -94,7 +94,7 @@ SUMMARIZERS = {
     },
     'llama': {
         'func': summarize_chunk_llama,
-        'context_window': 8000,
+        'context_window': 128000,
     }
 }
 

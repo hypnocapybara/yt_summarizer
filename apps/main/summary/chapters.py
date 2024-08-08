@@ -101,9 +101,10 @@ Bad:
 [0:03:45] Talking about some stuff
 [0:12:30] Showing how it works
 
+Chapter timestamp in brackets should be in the interval of timestamps of the related transcript parts
+
 Handle these edge cases:
 - If the transcript starts mid-sentence, use context to determine an appropriate starting chapter.
-- For very short videos (under 5 minutes), you may only need 2-3 chapters.
 - If there are long sections without clear topic changes, consider creating chapters based on time intervals (e.g., every 5-10 minutes).
 
 Now, analyze the provided transcript and generate a list of YouTube video chapters. Aim for 5-10 chapters, depending on the length and complexity of the content. Present your final output in the following format:
@@ -116,7 +117,7 @@ Remember to think carefully about the content and structure of the video to crea
 """
 
 
-def fill_video_chapters(video: YoutubeVideo, model: Literal['anthropic', 'openai'] = 'anthropic'):
+def fill_video_chapters(video: YoutubeVideo, model: Literal['anthropic', 'openai', 'llama'] = 'anthropic'):
     lines = []
 
     if not video.transcription_segments:
@@ -171,6 +172,21 @@ def fill_video_chapters(video: YoutubeVideo, model: Literal['anthropic', 'openai
             ]
         )
         result = str(completion.choices[0].message.content)
+    elif model == 'llama':
+        client = OpenAI(
+            api_key=settings.RUNPOD_API_KEY,
+            base_url=f'https://api.runpod.ai/v2/{settings.MY_LLAMA_ID}/openai/v1',
+        )
+
+        response = client.chat.completions.create(
+            model="meta-llama/Meta-Llama-3.1-8B-Instruct",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt.format(text=transcript_text)},
+            ],
+        )
+
+        result = response.choices[0].message.content
     else:
         return
 

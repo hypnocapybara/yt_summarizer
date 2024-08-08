@@ -13,13 +13,13 @@ class Command(BaseCommand):
         # video = YoutubeVideo.objects.get(pk=68)
         # parts = split_chaptered_summary_into_parts(video.summary)
 
-        video = YoutubeVideo.objects.get(pk=72)
+        video = YoutubeVideo.objects.get(pk=75)
         # parse_video(video)
         # transcribe_video_runpod_whisper(video)
-        # task_id = 'f4f1c7ad-dde4-4171-9016-e90382d4a438-u1'
+        # task_id = '889d0b80-a578-431f-90dc-4eb89e18899e-u1'
         # get_transcription(video, task_id)
         # parse_video(video)
         # transcribe_video_openai(video)
-        # fill_video_chapters(video, 'openai')
-        summarize_video_generic(video)
+        fill_video_chapters(video, 'openai')
+        # summarize_video_generic(video, 'llama')
         # summarize_video(video)
